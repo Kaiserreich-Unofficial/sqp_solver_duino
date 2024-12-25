@@ -1,8 +1,7 @@
-#include <Eigen/Eigenvalues>
+#include <ArduinoEigen/Eigen/Eigenvalues>
 #include <cmath>
-#include <iostream>
-#include <solvers/bfgs.hpp>
-#include <solvers/sqp.hpp>
+#include <bfgs.hpp>
+#include <sqp.hpp>
 
 #ifndef SOLVER_ASSERT
 #define SOLVER_ASSERT(x) eigen_assert(x)
@@ -104,7 +103,7 @@ template <typename Matrix>
 bool is_posdef_eigen(Matrix H) {
     Eigen::EigenSolver<Matrix> eigensolver(H);
     for (int i = 0; i < eigensolver.eigenvalues().rows(); i++) {
-        double v = eigensolver.eigenvalues()(i).real();
+        float v = eigensolver.eigenvalues()(i).real();
         if (v <= 0) {
             return false;
         }
@@ -170,7 +169,7 @@ void SQP<T>::solve_qp(Problem& prob, Vector& step, Vector& lambda) {
     }
 
     if (!is_posdef(Hess_)) {
-        std::cout << "Hessian not positive definite\n";
+        Serial.println(F("Hessian not positive definite"));
         Scalar tau = 1e-3;
         Vector v = Vector(prob.num_var);
         while (!is_posdef(Hess_)) {
@@ -180,7 +179,7 @@ void SQP<T>::solve_qp(Problem& prob, Vector& step, Vector& lambda) {
         }
     }
     if (is_nan(Hess_)) {
-        std::cout << "Hessian is NaN\n";
+        Serial.println(F("Hessian is NaN"));
     }
 
     SOLVER_ASSERT(is_posdef(Hess_));
@@ -224,7 +223,7 @@ bool SQP<T>::run_solve_qp(const Matrix& P, const Vector& q, const Matrix& A, con
     info_.qp_solver_iter += qp_solver_.info().iter;
 
     if (qp_solver_.info().status == qp_solver::NUMERICAL_ISSUES) {
-        std::cout << "QPSolver NUMERICAL_ISSUES\n";
+        Serial.println(F("QPSolver NUMERICAL_ISSUES"));
         return false;
     }
     // if (qp_solver_.info().status == qp_solver::MAX_ITER_EXCEEDED) {
@@ -342,7 +341,6 @@ typename SQP<T>::Scalar SQP<T>::max_constraint_violation(const Vector& x, Proble
     return c_max;
 }
 
-template class SQP<double>;
 template class SQP<float>;
 
 }  // namespace sqp

@@ -1,7 +1,7 @@
 #ifndef BFGS_HPP
 #define BFGS_HPP
 
-#include <Eigen/Dense>
+#include <ArduinoEigenDense.h>
 #include <limits>
 
 /** Damped BFGS update
@@ -40,8 +40,8 @@ void BFGS_update(Mat& B, const Vec& s, const Vec& y) {
     B.noalias() += -Bs * Bs.transpose() / sBs + r * r.transpose() / sr;
 }
 
-// extern template void BFGS_update<Eigen::MatrixXd, Eigen::VectorXd>(Eigen::MatrixXd& B,
-//                                                                    const Eigen::VectorXd& s,
-//                                                                    const Eigen::VectorXd& y)
+// extern template void BFGS_update<Eigen::MatrixXf, Eigen::VectorXf>(Eigen::MatrixXf& B,
+//                                                                    const Eigen::VectorXf& s,
+//                                                                    const Eigen::VectorXf& y)
 
 #endif /* BFGS_HPP */

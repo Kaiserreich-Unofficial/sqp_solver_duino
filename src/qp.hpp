@@ -1,10 +1,11 @@
 #pragma once
 
+#include <ArduinoEigenDense.h>
+
 #ifdef QP_SOLVER_SPARSE
-#include <Eigen/Sparse>
+#include <ArduinoEigen/Eigen/Sparse>
 #endif
 
-#include <Eigen/Dense>
 #include <limits>
 #include <vector>
 
@@ -16,7 +17,7 @@ namespace qp_solver {
  *  minimize        0.5 x' P x + q' x
  *  subject to      l <= A x <= u
  */
-template <typename Scalar = double>
+template <typename Scalar = float>
 struct QuadraticProblem {
     using Vector = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
 #ifdef QP_SOLVER_SPARSE
@@ -80,29 +81,34 @@ struct QPSolverInfo {
 
 #ifdef QP_SOLVER_PRINTING
     void print() const {
-        printf("ADMM info:\n");
-        printf("  status ");
+        Serial.println(F("ADMM info:"));
+        Serial.println(F("  status "));
         switch (status) {
             case SOLVED:
-                printf("SOLVED\n");
+                Serial.println(F("SOLVED"));
                 break;
             case MAX_ITER_EXCEEDED:
-                printf("MAX_ITER_EXCEEDED\n");
+                Serial.println(F("MAX_ITER_EXCEEDED"));
                 break;
             case UNSOLVED:
-                printf("UNSOLVED\n");
+                Serial.println(F("UNSOLVED"));
                 break;
             case NUMERICAL_ISSUES:
-                printf("NUMERICAL_ISSUES\n");
+                Serial.println(F("NUMERICAL_ISSUES"));
                 break;
             default:
-                printf("UNINITIALIZED\n");
+                Serial.println(F("UNKNOWN"));
         };
-        printf("  iter %d\n", iter);
-        printf("  rho_updates %d\n", rho_updates);
-        printf("  rho_estimate %f\n", rho_estimate);
-        printf("  res_prim %f\n", res_prim);
-        printf("  res_dual %f\n", res_dual);
+        Serial.print(F("  iter "));
+        Serial.println(iter);
+        Serial.print(F("  rho_updates "));
+        Serial.println(rho_updates);
+        Serial.print(F("  rho_estimate "));
+        Serial.println(rho_estimate);
+        Serial.print(F("  res_prim "));
+        Serial.println(res_prim);
+        Serial.print(F("  res_dual "));
+        Serial.println(res_dual);
     }
 #endif
 };
@@ -247,7 +253,6 @@ class QPSolver {
     LinearSolver linear_solver;
 };
 
-extern template class QPSolver<double>;
 extern template class QPSolver<float>;
 
 }  // namespace qp_solver

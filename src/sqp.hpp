@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Eigen/Dense>
+#include <ArduinoEigenDense.h>
 #include <limits>
 
-#include <solvers/qp.hpp>
+#include <qp.hpp>
 
 namespace sqp {
 
@@ -38,28 +38,30 @@ struct Info {
     Status status;
 
     void print() {
-        printf("SQP info:\n");
-        printf("  iter: %d\n", iter);
-        printf("  qp_solver_iter: %d\n", qp_solver_iter);
-        printf("  status: ");
+        Serial.println(F("SQP info:"));
+        Serial.print(F("  iter: "));
+        Serial.println(iter);
+        Serial.print(F("  qp_solver_iter: "));
+        Serial.println(qp_solver_iter);
+        Serial.print(F("  status: "));
         switch (status) {
             case SOLVED:
-                printf("SOLVED\n");
+                Serial.println(F("SOLVED"));
                 break;
             case MAX_ITER_EXCEEDED:
-                printf("MAX_ITER_EXCEEDED\n");
+                Serial.println(F("MAX_ITER_EXCEEDED"));
                 break;
             case INVALID_SETTINGS:
-                printf("INVALID_SETTINGS\n");
+                Serial.println(F("INVALID_SETTINGS"));
                 break;
             default:
-                printf("UNKNOWN\n");
+                Serial.println(F("UNKNOWN"));
                 break;
         }
     }
 };
 
-template <typename Scalar_ = double>
+template <typename Scalar_ = float>
 struct NonLinearProblem {
     using Scalar = Scalar_;
     using Matrix = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>;
@@ -160,6 +162,6 @@ class SQP {
     qp_solver::QPSolver<Scalar> qp_solver_;
 };
 
-extern template class SQP<double>;
+extern template class SQP<float>;
 
 }  // namespace sqp

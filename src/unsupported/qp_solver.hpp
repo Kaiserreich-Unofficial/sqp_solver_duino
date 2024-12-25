@@ -1,9 +1,9 @@
 #ifndef QP_SOLVER_H
 #define QP_SOLVER_H
 
-#include <Eigen/Dense>
+#include <ArduinoEigenDense.h>
 #ifdef QP_SOLVER_USE_SPARSE
-#include <Eigen/Sparse>
+#include <ArduinoEigen/Eigen/SparseSparse>
 #endif
 #include <cmath>
 #include <limits>
@@ -15,7 +15,7 @@
 namespace qp_solver {
 
 #ifdef QP_SOLVER_USE_SPARSE
-template <int _n, int _m, typename _Scalar = double>
+template <int _n, int _m, typename _Scalar = float>
 struct QP {
     using Scalar = _Scalar;
     enum {
@@ -32,7 +32,7 @@ struct QP {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 #else
-template <int _n, int _m, typename _Scalar = double>
+template <int _n, int _m, typename _Scalar = float>
 struct QP {
     using Scalar = _Scalar;
     enum {
@@ -68,15 +68,23 @@ struct qp_sover_settings_t {
 #ifdef QP_SOLVER_PRINTING
     void print() const
     {
-        printf("ADMM settings:\n");
-        printf("  sigma %.2e\n", sigma);
-        printf("  rho %.2e\n", rho);
-        printf("  alpha %.2f\n", alpha);
-        printf("  eps_rel %.1e\n", eps_rel);
-        printf("  eps_abs %.1e\n", eps_abs);
-        printf("  max_iter %d\n", max_iter);
-        printf("  adaptive_rho %d\n", adaptive_rho);
-        printf("  warm_start %d\n", warm_start);
+        Serial.println(F("ADMM settings:"));
+        Serial.print(F("  sigma "));
+        Serial.println(sigma);
+        Serial.print(F("  rho "));
+        Serial.println(rho);
+        Serial.print(F("  alpha "));
+        Serial.println(alpha);
+        Serial.print(F("  eps_rel "));
+        Serial.println(eps_rel);
+        Serial.print(F("  eps_abs "));
+        Serial.println(eps_abs);
+        Serial.print(F("  max_iter "));
+        Serial.println(max_iter);
+        Serial.print(F("  adaptive_rho "));
+        Serial.println(adaptive_rho);
+        Serial.print(F("  warm_start "));
+        Serial.println(warm_start);
     }
 #endif
 };
@@ -100,26 +108,31 @@ struct qp_solver_info_t {
 #ifdef QP_SOLVER_PRINTING
     void print() const
     {
-        printf("ADMM info:\n");
-        printf("  status ");
+        Serial.println(F("ADMM info:"));
+        Serial.print(F("  status "));
         switch (status) {
         case SOLVED:
-            printf("SOLVED\n");
+            Serial.println(F("SOLVED"));
             break;
         case MAX_ITER_EXCEEDED:
-            printf("MAX_ITER_EXCEEDED\n");
+            Serial.println(F("MAX_ITER_EXCEEDED"));
             break;
         case UNSOLVED:
-            printf("UNSOLVED\n");
+            Serial.println(F("UNSOLVED"));
             break;
         default:
-            printf("UNINITIALIZED\n");
+            Serial.println(F("UNINITIALIZED"));
         };
-        printf("  iter %d\n", iter);
-        printf("  rho_updates %d\n", rho_updates);
-        printf("  rho_estimate %f\n", rho_estimate);
-        printf("  res_prim %f\n", res_prim);
-        printf("  res_dual %f\n", res_dual);
+        Serial.print(F("  iter "));
+        Serial.println(iter);
+        Serial.print(F("  rho_updates "));
+        Serial.println(rho_updates);
+        Serial.print(F("  rho_estimate "));
+        Serial.println(rho_estimate);
+        Serial.print(F("  res_prim "));
+        Serial.println(res_prim);
+        Serial.print(F("  res_dual "));
+        Serial.println(res_dual);
     }
 #endif
 };
@@ -584,9 +597,15 @@ private:
         Scalar obj = 0.5 * x.dot(qp.P*x) + qp.q.dot(x);
 
         if (iter == _settings.check_termination) {
-            printf("iter   obj       rp        rd\n");
+            Serial.println(F("iter   obj       rp        rd"));
         }
-        printf("%4d  %.2e  %.2e  %.2e\n", iter, obj, _info.res_prim, _info.res_dual);
+        Serial.print(iter);
+        Serial.print(F("  "));
+        Serial.print(obj);
+        Serial.print(F("  "));
+        Serial.print(_info.res_prim);
+        Serial.print(F("  "));
+        Serial.println(_info.res_dual);
     }
 #endif
 };
