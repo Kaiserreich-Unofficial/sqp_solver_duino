@@ -4,62 +4,60 @@
 
 using namespace sqp;
 
-struct SimpleNLP : public NonLinearProblem<float>
+struct SimpleQP : public NonLinearProblem<float>
 {
     using Vector = NonLinearProblem<float>::Vector;
     using Matrix = NonLinearProblem<float>::Matrix;
 
-    const Scalar infinity = std::numeric_limits<Scalar>::infinity();
-    Eigen::Vector2f SOLUTION = {1, 1};
+    Eigen::Matrix2f P;
+    Eigen::Vector2f q = {1, 1};
+    Eigen::Vector2f SOLUTION = {0.3, 0.7};
 
-    SimpleNLP()
+    SimpleQP()
     {
+        P << 4, 1, 1, 2;
         num_var = 2;
         num_constr = 3;
     }
 
-    void objective(const Vector &x, Scalar &obj) { obj = -x.sum(); }
+    void objective(const Vector &x, Scalar &obj) final { obj = 0.5 * x.dot(P * x) + q.dot(x); }
 
-    void objective_linearized(const Vector &x, Vector &grad, Scalar &obj)
+    void objective_linearized(const Vector &x, Vector &grad, Scalar &obj) final
     {
-        grad.resize(num_var);
-
         objective(x, obj);
-        grad << -1, -1;
+        grad = P * x + q;
     }
 
-    void constraint(const Vector &x, Vector &c, Vector &l, Vector &u)
+    void constraint(const Vector &x, Vector &c, Vector &l, Vector &u) final
     {
-        // 1 <= x0^2 + x1^2 <= 2
-        // 0 <= x0
-        // 0 <= x1
-        c << x.squaredNorm(), x;
+        // x1 + x2 = 1
+        c << x.sum(), x;
         l << 1, 0, 0;
-        u << 2, infinity, infinity;
+        u << 1, 0.7, 0.7;
     }
 
-    void constraint_linearized(const Vector &x, Matrix &Jc, Vector &c, Vector &l, Vector &u)
+    void constraint_linearized(const Vector &x, Matrix &Jc, Vector &c, Vector &l, Vector &u) final
     {
-        Jc.resize(3, 2);
-
         constraint(x, c, l, u);
-        Jc << 2 * x.transpose(), Matrix::Identity(2, 2);
+        Jc << 1, 1, Matrix::Identity(2, 2);
     }
 };
 
-SimpleNLP problem;
+SimpleQP problem;
 SQP<float> solver;
-Eigen::Vector2f x;
 
 void setup()
 {
     Serial.begin(115200);
     while (!Serial)
         ;
-    Serial.println(F("[INFO] SQP feasible problem test"));
-    // feasible initial point
-    Eigen::Vector2f x0 = {1.2, 0.1};
-    Eigen::Vector3f y0 = Eigen::VectorXf::Zero(3);
+    Serial.println(F("[INFO] Simple QP problem test"));
+    Eigen::VectorXf x0 = Eigen::Vector2f(0, 0);
+    Eigen::VectorXf y0 = Eigen::Vector3f(0, 0, 0);
+
+    solver.settings().second_order_correction = true;
+    solver.solve(problem, x0, y0);
+
     solver.settings().max_iter = 100;
     solver.settings().second_order_correction = true;
 

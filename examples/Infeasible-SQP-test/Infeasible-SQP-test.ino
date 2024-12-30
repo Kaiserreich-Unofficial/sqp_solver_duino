@@ -49,17 +49,17 @@ struct SimpleNLP : public NonLinearProblem<float>
 
 SimpleNLP problem;
 SQP<float> solver;
-Eigen::Vector2f x;
 
 void setup()
 {
     Serial.begin(115200);
     while (!Serial)
         ;
-    Serial.println(F("[INFO] SQP feasible problem test"));
-    // feasible initial point
-    Eigen::Vector2f x0 = {1.2, 0.1};
-    Eigen::Vector3f y0 = Eigen::VectorXf::Zero(3);
+    Serial.println(F("[INFO] SQP infeasible problem test"));
+    // infeasible initial point
+    Eigen::Vector2f x0 = {2, -1};
+    Eigen::Vector3f y0 = {1, 1, 1};
+
     solver.settings().max_iter = 100;
     solver.settings().second_order_correction = true;
 

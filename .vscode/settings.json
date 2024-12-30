@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.ino": "cpp",
-        "limits": "cpp",
-        "ostream": "cpp"
-    }
-}
